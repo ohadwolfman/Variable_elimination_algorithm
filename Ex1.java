@@ -14,17 +14,16 @@ public class Ex1 {
         File inputFile = new File(inputDirectory);
         Scanner input = new Scanner(inputFile);
         String fileName = input.nextLine();
-
         String xmlDirectory = path+fileName;
         Xml_reader.readXml(xmlDirectory);
-        System.out.println(xmlDirectory);
-        /*File xmlFile = new File(xmlDirectory);
-        Scanner s = new Scanner(xmlFile);*/
 
         while (input.hasNextLine()) {
             String line = input.nextLine();
             int queryLen = line.length();
             String query = line.substring(2, queryLen - 3);
+            for(int i=0; i<query.length(); i++){
+
+            }
             System.out.println(query);
             String functionNumber = line.substring(queryLen - 1);
 
