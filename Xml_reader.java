@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,7 +31,6 @@ public class Xml_reader{
                     Element eElement = (Element) nNode;
 
                     String Name = eElement.getElementsByTagName("NAME").item(0).getTextContent();
-                    System.out.println("Name: " + Name);
                     Variable var = new Variable(Name);
 
                     for(int j=0; j<2; j++){
@@ -41,40 +41,37 @@ public class Xml_reader{
                     System.out.println(var);
                 }
             }
+
             NodeList definitionList = doc.getElementsByTagName("DEFINITION");
             for (int i = 0; i < definitionList.getLength(); i++) {
-                Node nNode = definitionList.item(i); //grabbing one Definition
+                Node dNode = definitionList.item(i); //grabbing one Definition
 
                 //we want to read the subElements only if the element actually has subElements instead of text only
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eElement = (Element) nNode;
+                if (dNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) dNode;
 
                     String FOR = eElement.getElementsByTagName("FOR").item(0).getTextContent();
-                    System.out.println("FOR: " + FOR);
                     Definition def = new Definition(FOR);
 
                     int j=0;
                     while (eElement.getElementsByTagName("GIVEN").item(j)!=null){
                         String given = eElement.getElementsByTagName("GIVEN").item(j).getTextContent();
-                        def.setGivenList(given);
+                        if (eElement.getElementsByTagName("GIVEN").item(j)!=null)
+                            def.setGivenList(given);
+                        j++;
                     }
 
-                    j=0;
-                    while (eElement.getElementsByTagName("TABLE").item(j)!=null){
-                        String table = eElement.getElementsByTagName("TABLE").item(j).getTextContent();
-                        //def.setTableList(table);
-                    }
-
-                    String t = eElement.getElementsByTagName("TABLE").item(0).getTextContent();
-                    System.out.println("TABLE: " + t);
-                    def.getTableList();
-
+                    String table = eElement.getElementsByTagName("TABLE").item(0).getTextContent();
+                    def.setTableList(table);
                     bayesianNetwork.addDef(def);
+                    System.out.println(def);
                 }
             }
         }
         catch (Exception e) {
             System.out.println("something went wrong");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 }

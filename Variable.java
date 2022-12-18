@@ -4,15 +4,16 @@ import java.util.List;
 public class Variable {
 
     private String name;
-    private ArrayList<String> outcomeList;
-    private ArrayList<String> parents;
-    private ArrayList<Double> cpt;
-
-    public Variable (){
-    }
+    private List<String> outcomeList;
+    private List<String> parents;
+    private List<Double> cpt;
 
     public Variable (String Name){
         this.name = Name;
+        this.outcomeList = new ArrayList<>();
+        this.parents = new ArrayList<>();
+        this.cpt = new ArrayList<>();
+
     }
 
     /*public Variable (String name, ArrayList<String> outcomes, ArrayList<String> parents, ArrayList<Double> cpt){
@@ -26,7 +27,7 @@ public class Variable {
         return name;
     }
 
-    public ArrayList<String> getOutcomeList() {
+    public List<String> getOutcomeList() {
         return outcomeList;
     }
 
@@ -36,13 +37,13 @@ public class Variable {
 
     @Override
     public String toString() {
-        return "Variable{\n" +
+        return "Variable{" +
                 "name='" + name + '\'' +
-                ",\noutcomeList=" + outcomeList +
+                ",outcomeList=" + outcomeList +
                 '}';
     }
 
-    public ArrayList<String> getParents() {
+    public List<String> getParents() {
         return parents;
     }
 
@@ -50,7 +51,7 @@ public class Variable {
         this.parents.add(parent);
     }
 
-    public ArrayList<Double> getCpt() {
+    public List<Double> getCpt() {
         return cpt;
     }
 

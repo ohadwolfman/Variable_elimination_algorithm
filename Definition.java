@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.ArrayList;
 
 public class Definition {
 
@@ -8,6 +9,8 @@ public class Definition {
 
     public Definition(String def) {
         this.forField=def;
+        this.givenList= new ArrayList<>();
+        this.tableList= new ArrayList<>();
     }
 
     public String getForField() {
@@ -30,8 +33,20 @@ public class Definition {
         return tableList;
     }
 
-    public void setTableList(List<Double> table) {
-        this.tableList = (table);
+    public void setTableList(String table) {
+        List<Double> result = convertStringToList(table);
+        this.tableList = result;
+    }
+
+    public static List<Double> convertStringToList(String input) {
+        List<Double> result = new ArrayList<>();
+        // Split the input string on any number of whitespace characters
+        String[] parts = input.split("\s+");
+
+        for (String part : parts) {
+            result.add(Double.parseDouble(part));
+        }
+        return result;
     }
 
     @Override

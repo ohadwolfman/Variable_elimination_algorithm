@@ -2,10 +2,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Network {
-    private ArrayList<Variable> varibaleList;
-    private ArrayList<Definition> definitionList;
+    private List<Variable> varibaleList;
+    private List<Definition> definitionList;
 
     public Network() {
+        this.varibaleList = new ArrayList<>();
+        this.definitionList = new ArrayList<>();
     }
 
     public void addVar(Variable v) {
