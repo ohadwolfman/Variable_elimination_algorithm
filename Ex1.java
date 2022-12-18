@@ -21,17 +21,18 @@ public class Ex1 {
             String line = input.nextLine();
             int queryLen = line.length();
             String query = line.substring(2, queryLen - 3);
-            for(int i=0; i<query.length(); i++){
-
-            }
             System.out.println(query);
+
             String functionNumber = line.substring(queryLen - 1);
+            System.out.println(extractEvidences(query));
 
             if (functionNumber.charAt(0) == '1') {
+                ArrayList<String> evidences = extractEvidences(query);
                 //System.out.println(SimpleInference(query));
                 ;
             }
             if (functionNumber.charAt(0) == '2') {
+                ArrayList<String> evidences = extractEvidences(query);
                 //System.out.println(VariableElimination(query));
                 ;
             }
@@ -45,5 +46,22 @@ public class Ex1 {
         private static void VariableElimination (String query){
         }
 */
+    }
+
+    public static ArrayList<String> extractEvidences(String query) {
+        ArrayList<String> result = new ArrayList<>();
+        int pointer=0;
+        while(query.charAt(pointer) != '|'){
+            pointer++;
+        }
+        pointer++;
+
+        String ev = query.substring(pointer);
+        ev = ev.replace("=",",");
+        String[] arr = ev.split(",");
+        for(int i=0; i< arr.length; i++){
+            result.add(arr[i]);
+        }
+        return result;
     }
 }
