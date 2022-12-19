@@ -33,9 +33,11 @@ public class Xml_reader{
                     String Name = eElement.getElementsByTagName("NAME").item(0).getTextContent();
                     Variable var = new Variable(Name);
 
-                    for(int j=0; j<2; j++){
+                    int j=0;
+                    while (eElement.getElementsByTagName("OUTCOME").item(j)!=null){
                         String outcome = eElement.getElementsByTagName("OUTCOME").item(j).getTextContent();
                         var.setOutcomeList(outcome);
+                        j++;
                     }
                     bayesianNetwork.addVar(var);
                     System.out.println(var);

@@ -49,6 +49,24 @@ public class Definition {
         return result;
     }
 
+    public static String[][] createCPT(Definition def){
+        int numOfVarInCpt = def.givenList.size()+1;
+        int numOfRows = (int) Math.pow(2,numOfVarInCpt);
+
+        String[][] cpt = new String[numOfRows][numOfVarInCpt+1];
+        int jumps = numOfRows/2;
+        for (int i=0; i<numOfVarInCpt; i++){
+            for (int j=0; j<jumps; j++){
+                cpt[j][i] = "T";
+                }
+            for (int j=0; j<jumps; j++){
+                cpt[j][i] = "F";
+                }
+            }
+
+        return cpt;
+    }
+
     @Override
     public String toString() {
         return "Definition{" +

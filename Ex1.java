@@ -1,8 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 public class Ex1 {
 
@@ -37,15 +35,6 @@ public class Ex1 {
                 ;
             }
         }
-
-        /*
-        private static String SimpleInference (String query){
-            ArrayList<Double> answer = new ArrayList<>();
-        }
-
-        private static void VariableElimination (String query){
-        }
-*/
     }
 
     public static ArrayList<String> extractEvidences(String query) {
@@ -62,6 +51,64 @@ public class Ex1 {
         for(int i=0; i< arr.length; i++){
             result.add(arr[i]);
         }
+
+        for(int i=0; i<result.size(); i++){
+            if(Objects.equals(result.get(i), "F")){
+                String newValue = result.get(i-1).toLowerCase();
+                result.set(i-1, newValue);
+            }
+        }
+
+        for(int i=1; i<result.size(); i+=2){
+            result.remove(i);
+        }
+
         return result;
+    }
+
+    public static String[][] createCpt(List<Variable> Variables) {
+        List<List<String>> listsInput = new ArrayList<>();
+        for (Variable v : Variables) {
+            listsInput.add(v.getOutcomeList());
+        }
+        List<String> allPermutations = new ArrayList<>();
+        generatePermutations(listsInput, allPermutations, 0, "");
+
+        int rows = 1; //the rows is a multiplication of the number of outcomes of every variable
+        for (Variable v : Variables) {
+            rows *= v.getOutcomeList().size();
+        }
+        // Initialize the 2D array with the appropriate size
+        String[][] CPT = new String[rows][Variables.size() + 1];
+
+        for (int i = 0; i < rows; i++) {
+            String[] row = allPermutations.get(i).split(",");
+            CPT[i][0] = String.valueOf(i + 1);
+            for (int j=1; j<=Variables.size(); j++){
+                CPT[i][j] = row[j-1];
+            }
+        }
+        return CPT;
+    }
+
+    public static void generatePermutations(List<List<String>> lists, List<String> result, int depth, String current) {
+        if (depth == lists.size()) {
+            result.add(current.substring(0, current.length()-1));
+            return;
+        }
+
+        for (int i = 0; i < lists.get(depth).size(); i++) {
+            generatePermutations(lists, result, depth + 1, current + lists.get(depth).get(i) + ",");
+        }
+    }
+
+    public static void printCpt(ArrayList<Variable> variables) {
+        String[][] cpt = createCpt(variables);
+        for (int i = 0; i < cpt.length; i++) {
+            for (int j = 0; j < variables.size() + 1; j++) {
+                System.out.print(cpt[i][j] + ",");
+            }
+            System.out.println();
+        }
     }
 }

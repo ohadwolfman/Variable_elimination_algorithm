@@ -13,7 +13,13 @@ public class Variable {
         this.outcomeList = new ArrayList<>();
         this.parents = new ArrayList<>();
         this.cpt = new ArrayList<>();
+    }
 
+    public Variable (String Name, ArrayList<String>outcomeList){
+        this.name = Name;
+        this.outcomeList = outcomeList;
+        this.parents = new ArrayList<>();
+        this.cpt = new ArrayList<>();
     }
 
     /*public Variable (String name, ArrayList<String> outcomes, ArrayList<String> parents, ArrayList<Double> cpt){
