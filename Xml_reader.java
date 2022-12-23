@@ -1,4 +1,6 @@
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -10,7 +12,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 public class Xml_reader{
-    public static void readXml(String xmlFile){
+    public static void readXml(String xmlFile,Network bayesianNetwork ){
         try {
             /*String path = "C:\\Users\\ohad1\\OneDrive\\Documents\\";
             String filename = "alarm_net.xml";
@@ -20,7 +22,7 @@ public class Xml_reader{
             DocumentBuilder builder = fact.newDocumentBuilder();
             Document doc = builder.parse(xmlDoc);
 
-            Network bayesianNetwork = new Network();
+
 
             NodeList variableList = doc.getElementsByTagName("VARIABLE");
             for (int i = 0; i < variableList.getLength(); i++) {
@@ -39,8 +41,9 @@ public class Xml_reader{
                         var.setOutcomeList(outcome);
                         j++;
                     }
+                    System.out.println(var.getCpt());
                     bayesianNetwork.addVar(var);
-                    System.out.println(var);
+//                    System.out.println(var);
                 }
             }
 
@@ -53,20 +56,27 @@ public class Xml_reader{
                     Element eElement = (Element) dNode;
 
                     String FOR = eElement.getElementsByTagName("FOR").item(0).getTextContent();
+
                     Definition def = new Definition(FOR);
 
                     int j=0;
                     while (eElement.getElementsByTagName("GIVEN").item(j)!=null){
                         String given = eElement.getElementsByTagName("GIVEN").item(j).getTextContent();
+
                         if (eElement.getElementsByTagName("GIVEN").item(j)!=null)
-                            def.setGivenList(given);
+                            bayesianNetwork.getVarbyName(FOR).setParents(given);
+                        def.setGivenList(given);
                         j++;
                     }
+//                    System.out.println(bayesianNetwork.getVarbyName("A").getOutcomeList());
 
                     String table = eElement.getElementsByTagName("TABLE").item(0).getTextContent();
+                    updateCpt(FOR,bayesianNetwork,table);
+                    System.out.println();
                     def.setTableList(table);
                     bayesianNetwork.addDef(def);
-                    System.out.println(def);
+
+//                    System.out.println(def);
                 }
             }
         }
@@ -76,4 +86,37 @@ public class Xml_reader{
             e.printStackTrace();
         }
     }
+    public static void updateCpt(String varName, Network net,String table){
+        String[] cptVal = table.split(" ");
+
+        ArrayList<Integer> outComes = new ArrayList<>();
+        int counter = 1;
+        ArrayList<String> varIn = new ArrayList<>();
+        varIn.add(varName);
+        for (int i = 0; i <net.getVarbyName(varName).getParents().size() ; i++) {
+            varIn.add(net.getVarbyName(varName).getParents().get(i));
+        }
+        for (int i = 0; i <varIn.size() ; i++) {
+            outComes.add(counter);
+            counter*= net.getVarbyName(varIn.get(i)).getOutcomeList().size();
+            System.out.println(counter);
+        }
+        String[][] cpt = new String[counter][varIn.size()+1];
+        for (int i = 0; i < counter; i++) {
+            cpt[i][varIn.size()] = cptVal[i];
+        }
+        for (int k = 0; k <varIn.size(); k++) {
+            int switcher = 0;
+            for (int l = 0; l < counter; l++) {
+                if(l>0 && l%outComes.get(k)==0)
+                    switcher+=1;
+                int s = net.getVarbyName(varIn.get(k)).getOutcomeList().size();
+                cpt[l][k] = varIn.get(k)+"="+net.getVarbyName(varIn.get(k)).getOutcomeList().get(switcher%s);
+            }
+        }
+        net.getVarbyName(varName).setCpt(cpt);
+        System.out.println(Arrays.deepToString(net.getVarbyName(varName).getCpt()));
+
+    }
+
 }

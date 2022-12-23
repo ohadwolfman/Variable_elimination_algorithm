@@ -14,6 +14,13 @@ public class Network {
         varibaleList.add(v);
     }
 
+    public Variable getVarbyName(String varName ){;
+        for (int i = 0; i <varibaleList.size() ; i++) {
+            if(varName.equals(varibaleList.get(i).getName()))return varibaleList.get(i);
+        }
+        return null;
+    }
+
     public void addDef(Definition def) {
         definitionList.add(def);
     }
@@ -27,6 +34,13 @@ public class Network {
             return true;
         return false;
     }
+    public List<Definition> getDef(){
+        return this.definitionList;
+    }
+    public List<Variable> getVars(){
+        return this.varibaleList;
+    }
+
 
     public boolean isVariableExists(Variable v){
         return (varibaleList.contains(v))? true: false;

@@ -6,21 +6,23 @@ public class Variable {
     private String name;
     private List<String> outcomeList;
     private List<String> parents;
-    private List<Double> cpt;
+    private String[][] cpt;
 
     public Variable (String Name){
         this.name = Name;
         this.outcomeList = new ArrayList<>();
         this.parents = new ArrayList<>();
-        this.cpt = new ArrayList<>();
+//        this.cpt = new String[][];
+//        this.cpt = new ArrayList<>();
     }
 
     public Variable (String Name, ArrayList<String>outcomeList){
         this.name = Name;
         this.outcomeList = outcomeList;
         this.parents = new ArrayList<>();
-        this.cpt = new ArrayList<>();
+//        this.cpt = new ArrayList<>();
     }
+
 
     /*public Variable (String name, ArrayList<String> outcomes, ArrayList<String> parents, ArrayList<Double> cpt){
         this.name=name;
@@ -54,14 +56,15 @@ public class Variable {
     }
 
     public void setParents(String parent) {
-        this.parents.add(parent);
+//        this.parents.add(parent);
+        this.parents.add(0,parent);
     }
 
-    public List<Double> getCpt() {
+    public String[][] getCpt() {
         return cpt;
     }
 
-    public void setCpt(ArrayList<Double> cpt) {
+    public void setCpt(String[][] cpt) {
         this.cpt = cpt;
     }
 }
