@@ -41,7 +41,7 @@ public class Definition {
     public static List<Double> convertStringToList(String input) {
         List<Double> result = new ArrayList<>();
         // Split the input string on any number of whitespace characters
-        String[] parts = input.split("\s+");
+        String[] parts = input.split(" ");
 
         for (String part : parts) {
             result.add(Double.parseDouble(part));

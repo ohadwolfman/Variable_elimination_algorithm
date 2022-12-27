@@ -5,7 +5,10 @@ public class Parser {
     public static String isQueryAlreadyExists(Network net,String queryVarName,ArrayList<String> queryAndEvidencesWithOutcome){
         String ans = "-1";
         for (int i = 0; i < net.getVarbyName(queryVarName).getCpt().length; i++) {
-            ArrayList<String> row = new ArrayList<>(List.of(net.getVarbyName(queryVarName).getCpt()[i]));
+            ArrayList<String> row = new ArrayList<>();
+            for (String element : net.getVarbyName(queryVarName).getCpt()[i]){
+                row.add(element);
+            }
             boolean first = row.subList(0,row.size()-1).containsAll(queryAndEvidencesWithOutcome);
             boolean second = queryAndEvidencesWithOutcome.containsAll(row.subList(0,row.size()-1));
             if(first&&second) {
