@@ -14,7 +14,7 @@ import org.w3c.dom.Element;
 public class Xml_reader{
     public static void readXml(String fileName,Network bayesianNetwork ){
         try {
-            File xmlDoc = new File("src/"+fileName);
+            File xmlDoc = new File(fileName);
             DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = fact.newDocumentBuilder();
             Document doc = builder.parse(xmlDoc);

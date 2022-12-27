@@ -49,7 +49,7 @@ public class Ex1 {
             }
 
             if(!Parser.isQueryAlreadyExists(net,queryVarName,queryAndEvidencesWithOutcome).equals("-1")) {
-                final_answer += Parser.isQueryAlreadyExists(net, queryVarName, queryAndEvidencesWithOutcome)+",0,0";
+                final_answer += Parser.isQueryAlreadyExists(net, queryVarName, queryAndEvidencesWithOutcome)+",0,0\n";
                 continue;
             }
             String functionNumber = line.substring(queryLen - 1);
