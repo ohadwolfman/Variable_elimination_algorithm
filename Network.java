@@ -15,8 +15,8 @@ public class Network {
     }
 
     public Variable getVarbyName(String varName ){;
-        for (int i = 0; i <varibaleList.size() ; i++) {
-            if(varName.equals(varibaleList.get(i).getName()))return varibaleList.get(i);
+        for (Variable variable : varibaleList) {
+            if (varName.equals(variable.getName())) return variable;
         }
         return null;
     }
@@ -29,11 +29,6 @@ public class Network {
         varibaleList.remove(v);
     }
 
-    public boolean isEmpty(){
-        if(varibaleList.isEmpty())
-            return true;
-        return false;
-    }
     public List<Definition> getDef(){
         return this.definitionList;
     }
@@ -41,11 +36,9 @@ public class Network {
         return this.varibaleList;
     }
 
-
     public boolean isVariableExists(Variable v){
         return (varibaleList.contains(v))? true: false;
     }
-
 
 
 

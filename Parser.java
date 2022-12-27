@@ -1,16 +1,22 @@
 import java.util.*;
 
 public class Parser {
-    public static double numerter = 0;
-    public static double denominator = 0;
-    public static  boolean p = false;
 
     // function for variable elimination
-    public static ArrayList<ArrayList<String[]>>  copyFactors(Network net,ArrayList<String> currentVars,ArrayList<String> varEvidence){
-        ArrayList<ArrayList<String[]>> factors = new ArrayList<>();
+    /**
+     * This method
+     *
+     * @param
+     * @param
+     * @param
+     * @param
+     * @return
+     */
+    public static ArrayList<ArrayList<ArrayList<String>>>  copyFactors(Network net,ArrayList<String> currentVars,ArrayList<String> varEvidence){
+        ArrayList<ArrayList<ArrayList<String>>> factors = new ArrayList<>();
         for (int i = 0; i < net.getVars().size() ; i++) {
             String varName = net.getVars().get(i).getName();
-            ArrayList<String []> newCpt = new ArrayList<>();
+            ArrayList<ArrayList<String>> newCpt = new ArrayList<>();
             for (int j = 0; j < net.getVarbyName(varName).getCpt().length; j++) {
                 boolean flag = false;
                 for (int k = 1; k < currentVars.size(); k++) {
@@ -22,86 +28,86 @@ public class Parser {
                         }
                     }
                 }
-                if (flag)
-                    continue;
+                if (flag) continue;
                 ArrayList<String> beforefiltered = new ArrayList<>();
 
                 for (int k = 0; k < net.getVarbyName(varName).getCpt()[j].length; k++) {
                     if(k<net.getVarbyName(varName).getCpt()[j].length-1) {
                         int index = net.getVarbyName(varName).getCpt()[j][k].indexOf("=");
-//                    System.out.println(""+index+"dsadas");
-//                    System.out.println( net.getVarbyName(varName).getCpt()[j][k].contains("="));
                         String varNametoFilter = net.getVarbyName(varName).getCpt()[j][k].substring(0, index);
                         if (!varNametoFilter.equals(currentVars.get(0)) && currentVars.contains(varNametoFilter))
                             continue;
 
                     }
-
-                    beforefiltered.add(net.getVarbyName(varName).getCpt()[j][k]);
+                    if(k<net.getVarbyName(varName).getCpt()[j].length-1||beforefiltered.size()>0)
+                        beforefiltered.add(net.getVarbyName(varName).getCpt()[j][k]);
 
                 }
-
-                String[] insert = new String[beforefiltered.size()];
-                for (int l = 0; l < insert.length; l++) {
-                    insert[l] = beforefiltered.get(l);
+                if(beforefiltered.size()>0){
+                    newCpt.add(beforefiltered);
                 }
-//                System.out.println(beforefiltered);
-                newCpt.add(insert);
             }
-
 
             factors.add(newCpt);
         }
-        for (int i = 0; i < factors.size(); i++) {
-            System.out.println("factor number dsadsadas :"+i);
-            for (int j = 0; j < factors.get(i).size(); j++) {
-                System.out.println(Arrays.toString(factors.get(i).get(j)));
-            }
 
-        }
         return factors;
     }
 
-    public static void deletEptyFactors( ArrayList<ArrayList<String[]>> factors){
+    /**
+     *
+     * @param factors
+     * @return
+     */
+    public static void deletEptyFactors( ArrayList<ArrayList<ArrayList<String>>> factors){
 
-        for (int i = factors.size()-1; i > 0; i--) {
-            if(factors.get(i).size()==0)factors.remove(i);
+        for (int i = factors.size()-1; i >= 0; i--) {
+            if(factors.get(i).size()==0)
+                factors.remove(i);
         }
+
     }
 
-
-    public static String variableElimination(ArrayList<String> varHidden,ArrayList<String> varEvidence,ArrayList<String> varNames,ArrayList<String> currentVars,Network net){
-
+    /**
+     *
+     * @param varHidden
+     * @param varEvidence
+     * @param varNames
+     * @param currentVars
+     * @param net
+     * @param queryVarOutCome
+     * @return
+     */
+    public static void variableElimination(ArrayList<String> varHidden,ArrayList<String> varEvidence,ArrayList<String> varNames,ArrayList<String> currentVars,Network net,String queryVarOutCome){
+        double mul = 0;
+        double add = 0;
         // currentVars evidence without outcomes
-        ArrayList<ArrayList<String []>> factors = copyFactors(net,currentVars,varEvidence);
-        ArrayList<String> unRelevanteVars = new ArrayList<>();
-        System.out.println(unRelevanteVars+" is unRelevanteVars");
 
+        ArrayList<ArrayList<ArrayList<String>>> factors = copyFactors(net,currentVars,varEvidence);
+
+        deletEptyFactors(factors);
+        ArrayList<String> unRelevanteVars = new ArrayList<>();
+        boolean flag = false;
         for (int i = 0; i < varHidden.size(); i++) {
+            flag = false;
             for (int j = 0; j < currentVars.size(); j++) {
-                Variable parent = net.getVarbyName(currentVars.get(j));
-                Variable son = net.getVarbyName(varHidden.get(i));
-                isParent(parent,son,net);
-                if(p){
+                Variable son = net.getVarbyName(currentVars.get(j));
+                Variable parent = net.getVarbyName(varHidden.get(i));
+                if(isParent2(parent,son,net)){
+                    flag = true;
                     break;
                 }
-
             }
-            if (!p){
-                unRelevanteVars.add(varHidden.get(i));
-            }else{
-                p = false;
-            }
+            if (!flag)unRelevanteVars.add(varHidden.get(i));
 
         }
 
-
-        for (int i = unRelevanteVars.size()-1; i >0; i--) {
+        for (int i = unRelevanteVars.size()-1; i >=0; i--) {
             if(varHidden.contains(unRelevanteVars.get(i)))varHidden.remove(unRelevanteVars.get(i));
         }
 
-        Collections.sort(varHidden);
 
+        //remove unrealevent factors from lsit fo factors
         for (int i = factors.size()-1; i > 0; i--) {
             ArrayList<String> factorVariableContains = getVarNamesFromFactor(factors.get(i));
             for (int j = 0; j < unRelevanteVars.size(); j++) {
@@ -116,52 +122,407 @@ public class Parser {
         Collections.sort(varHidden);
         for (int i = 0; i < varHidden.size(); i++) {
             String currVar = varHidden.get(i);
+            int numberOfInstacesinFactors = numberOfInstacesinFactors(factors,currVar);
+            int index = indexOfFirstFactorContain(factors,currVar);
 
+
+            while(numberOfInstacesinFactors>1){
+                int[] indexofFactors = twoSmallestFactorIndex(factors,currVar);
+                int indexFirst = indexofFactors[0];
+                int indexSecond = indexofFactors[1];
+                ArrayList<ArrayList<String>> firstFactor = new ArrayList<>(factors.get(indexFirst));
+                ArrayList<ArrayList<String>> secondFactor = new ArrayList<>(factors.get(indexSecond));
+                if(indexFirst<indexSecond){
+                    int tempIndex = indexFirst;
+                    indexFirst = indexSecond;
+                    indexSecond = tempIndex;
+                }
+                factors.remove(indexFirst);
+                factors.remove(indexSecond);
+                factors.add(join(firstFactor,secondFactor));
+                index = factors.size()-1;
+                //shoul check
+                numberOfInstacesinFactors--;
+            }
+
+
+            ArrayList<ArrayList<String>> newFactor = eliminate(factors.get(index),currVar);
+            factors.set(index,newFactor);
+            deletEptyFactors(factors);
 
 
 
         }
+        int numberOfInstacesinFactors = numberOfInstacesinFactors(factors,currentVars.get(0));
+        int index = indexOfFirstFactorContain(factors,currentVars.get(0));
+        while(numberOfInstacesinFactors>1){
+            int[] indexofFactors = twoSmallestFactorIndex(factors,currentVars.get(0));
+            int indexFirst = indexofFactors[0];
+            int indexSecond = indexofFactors[1];
+            ArrayList<ArrayList<String>> firstFactor = new ArrayList<>(factors.get(indexFirst));
+            ArrayList<ArrayList<String>> secondFactor = new ArrayList<>(factors.get(indexSecond));
+            if(indexFirst<indexSecond){
+                int tempIndex = indexFirst;
+                indexFirst = indexSecond;
+                indexSecond = tempIndex;
+            }
+            factors.remove(indexFirst);
+            factors.remove(indexSecond);
+            factors.add(join(firstFactor,secondFactor));
+            index = factors.size()-1;
+            //shoul check
+            numberOfInstacesinFactors--;
+        }
 
-        System.out.println("-----------factors after---------");
-        return "dsadsa";
+        double ans = normalize(factors.get(0),queryVarOutCome);
+        String s = String.format("%.5f",ans);
+        //System.out.println(s);
+        Ex1.final_answer+=s+"\n";
+    }
+
+    /**
+     *
+     * @param factor
+     * @param queryWithOutCome
+     * @return
+     */
+    public static double normalize(ArrayList<ArrayList<String>> factor,String queryWithOutCome){
+        double sum = 0;
+        int index = 0;
+        for (int i = 0; i < factor.size(); i++) {
+            if(factor.get(i).contains(queryWithOutCome)){
+                index = i;
+            }
+            sum+=Double.parseDouble(factor.get(i).get(1));
+        }
+        double valQuery = Double.parseDouble(factor.get(index).get(1));
+        return valQuery/sum;
+
 
     }
 
-    public static ArrayList<String> getVarNamesFromFactor( ArrayList<String []> currFactor){
+    /**
+     *
+     * @param factor
+     * @param varHidden
+     * @return
+     */
+    public static ArrayList<ArrayList<String>> eliminate( ArrayList<ArrayList<String>> factor,String varHidden){
+        ArrayList<ArrayList<String>> newFactor = new ArrayList<>();
+        ArrayList<Integer> rowsTaken = new ArrayList<>();
+        for (int i = 0; i < factor.size(); i++) {
+            boolean entered = false;
+            if(rowsTaken.contains(i))
+                continue;
+            rowsTaken.add(i);
+            ArrayList<String> temp = rowWithoutOutComes(factor.get(i));
+
+            int index = temp.indexOf(varHidden);
+            if(index!=-1) {
+                factor.get(i).remove(index);
+            }
+            double sum = Double.parseDouble(factor.get(i).get(factor.get(i).size()-1));
+            for (int j = i+1; j < factor.size(); j++) {
+                //should check
+
+                ArrayList<String> temp2 = rowWithoutOutComes(factor.get(j));
+                int index2 = temp.indexOf(varHidden);
+                if(index2!=-1) {
+                    factor.get(j).remove(index2);
+                }
+
+                if(factor.get(i).subList(0,factor.get(i).size()-1).equals(factor.get(j).subList(0,factor.get(j).size()-1))){
+                    sum+= Double.parseDouble(factor.get(j).get(factor.get(j).size()-1));
+                    rowsTaken.add(j);
+                    entered = true;
+                }
+            }
+
+            if(entered){
+                factor.get(i).set(factor.get(i).size()-1,sum+"");
+                if(factor.get(i).size()>1)
+                    newFactor.add(factor.get(i));
+            }
+        }
+        return newFactor;
+    }
+
+    /**
+     *
+     * @param row
+     * @return
+     */
+    public static ArrayList<String> rowWithoutOutComes(ArrayList<String> row){
+
+        ArrayList<String> ans = new ArrayList<>();
+        for (int i = 0; i < row.size()-1; i++) {
+            int index = row.get(i).indexOf("=");
+            ans.add(row.get(i).substring(0,index));
+
+        }
+        return ans;
+
+    }
+
+    /**
+     *
+     * @param firstFactorRow
+     * @param secondFactorRow
+     * @return
+     */
+    public static boolean shouldJoin(ArrayList<String> firstFactorRow,ArrayList<String> secondFactorRow){
+        ArrayList<String> rowWithOut = rowWithoutOutComes(secondFactorRow);
+
+        for (int i = 0; i < firstFactorRow.size()-1; i++) {
+            int index = firstFactorRow.get(i).indexOf("=");
+            String varWithoutOutComes = firstFactorRow.get(i).substring(0,index);
+            if(rowWithOut.contains(varWithoutOutComes)){
+
+                if(!secondFactorRow.contains(firstFactorRow.get(i))){
+                    return false;
+                }
+
+            }
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param firstFactorRow
+     * @param secondFactorRow
+     * @return
+     */
+    public static ArrayList<String> sameVarsInFactors(ArrayList<String> firstFactorRow,ArrayList<String> secondFactorRow){
+        ArrayList<String> sameVarsInfactors = new ArrayList<>();
+        ArrayList<String> newSecond = rowWithoutOutComes(secondFactorRow);
+        for (int i = 0; i < firstFactorRow.size()-1; i++) {
+            int index = firstFactorRow.get(i).indexOf("=");
+            String varWithoutOutComes = firstFactorRow.get(i).substring(0,index);
+
+            if(newSecond.contains(varWithoutOutComes)){
+                if(secondFactorRow.contains(firstFactorRow.get(i))){
+                    sameVarsInfactors.add(firstFactorRow.get(i));
+                }
+
+            }
+        }
+        return  sameVarsInfactors;
+    }
+
+    /**
+     *
+     * @param firstFactor
+     * @param secondFactor
+     * @return
+     */
+    public static ArrayList<ArrayList<String>> join(ArrayList<ArrayList<String>> firstFactor,ArrayList<ArrayList<String>> secondFactor) {
+
+        ArrayList<ArrayList<String>> multiplyFactor = new ArrayList<>();
+
+        for (int i = 0; i < firstFactor.size(); i++) {
+            for (int j = 0; j < secondFactor.size(); j++) {
+                if (shouldJoin(firstFactor.get(i), secondFactor.get(j))) {
+                    ///should check
+                    ArrayList<String> toRow = sameVarsInFactors(firstFactor.get(i), secondFactor.get(j));
+                    for (int k = 0; k < firstFactor.get(i).size() - 1; k++) {
+                        if (!toRow.contains(firstFactor.get(i).get(k))) {
+                            toRow.add(firstFactor.get(i).get(k));
+                        }
+                    }
+                    for (int k = 0; k < secondFactor.get(j).size() - 1; k++) {
+                        if (!toRow.contains(secondFactor.get(j).get(k))) {
+                            toRow.add(secondFactor.get(j).get(k));
+                        }
+                    }
+                    int sizeFirst = firstFactor.get(i).size() - 1;
+                    int sizeSecond = secondFactor.get(i).size() - 1;
+                    double valInerst = Double.parseDouble(firstFactor.get(i).get(sizeFirst)) * Double.parseDouble(secondFactor.get(j).get(sizeSecond));
+                    toRow.add(valInerst + "");
+
+                    multiplyFactor.add(toRow);
+
+
+                }
+            }
+
+
+        }
+        return multiplyFactor;
+    }
+
+    /**
+     *
+     * @param factors
+     * @param varHidden
+     * @return
+     */
+    public static int[] twoSmallestFactorIndex(ArrayList<ArrayList<ArrayList<String>>> factors,String varHidden){
+        int[] smalletFactors = new int[2];
+
+        int indexSmallest_1 = smallestFactorIndex(factors,varHidden,-1);
+        int indexSmallest_2 =  smallestFactorIndex(factors,varHidden,indexSmallest_1);
+
+        int minSizeFirst = factors.get(indexSmallest_1).size();
+        int minSizeSecond = factors.get(indexSmallest_2).size();
+
+        if(minSizeFirst<minSizeSecond){
+            smalletFactors[0] = indexSmallest_1;
+            smalletFactors[1] = lowerAscii(factors,varHidden,minSizeSecond,-1);
+        }else{
+            smalletFactors[0] = lowerAscii(factors,varHidden,minSizeFirst,-1);
+            smalletFactors[1] = lowerAscii(factors,varHidden,minSizeFirst, smalletFactors[0]);
+        }
+
+        return smalletFactors;
+
+
+    }
+
+    /**
+     *
+     * @param factors
+     * @param varHidden
+     * @param taken
+     * @return
+     */
+    public static int smallestFactorIndex(ArrayList<ArrayList<ArrayList<String>>> factors,String varHidden,int taken){
+        int min = Integer.MAX_VALUE;
+        int index = -1;
+        for (int i = 0; i < factors.size(); i++) {
+            ArrayList<String> varsInFactor = getVarNamesFromFactor(factors.get(i));
+            if(varsInFactor.contains(varHidden)&&i!=taken){
+                if(min>factors.get(i).size()){
+                    min = factors.get(i).size();
+                    index = i;
+
+                }
+
+            }
+
+        }
+        return index;
+
+
+    }
+
+    /**
+     *
+     * @param factors
+     * @param varHidden
+     * @param size
+     * @param indexTaken
+     * @return
+     */
+    public static int lowerAscii(ArrayList<ArrayList<ArrayList<String>>> factors,String varHidden,int size,int indexTaken){
+        int min = Integer.MAX_VALUE;
+        int index = -1;
+        for (int i = 0; i <factors.size(); i++) {
+            ArrayList<String> varsInFactor = getVarNamesFromFactor(factors.get(i));
+            int sum = 0;
+            if(varsInFactor.contains(varHidden) && (factors.get(i).size()==size) && (i!=indexTaken)){
+                for (String s : varsInFactor) {
+                    for (char c : s.toCharArray())
+                        sum += c;
+                }
+                if(min>sum){
+                    min = sum;
+                    index = i;
+                }
+            }
+
+        }
+        return index;
+    }
+
+    /**
+     *
+     * @param factors
+     * @param varHidden
+     * @return
+     */
+    public static int numberOfInstacesinFactors( ArrayList<ArrayList<ArrayList<String>>> factors,String varHidden){
+        int counter = 0;
+        for (int i = 0; i < factors.size(); i++) {
+            ArrayList<String> varsInFactor = getVarNamesFromFactor(factors.get(i));
+            if(varsInFactor.contains(varHidden))
+                counter++;
+        }
+        return counter;
+    }
+
+    /**
+     *
+     * @param factors
+     * @param varHidden
+     * @return
+     */
+    public static int indexOfFirstFactorContain( ArrayList<ArrayList<ArrayList<String>>> factors,String varHidden){
+        for (int i = 0; i < factors.size(); i++) {
+            ArrayList<String> varsInFactor = getVarNamesFromFactor(factors.get(i));
+            if(varsInFactor.contains(varHidden))
+                return i;
+        }
+        return -1;
+    }
+
+    /**
+     *
+     * @param currFactor
+     * @return
+     */
+    public static ArrayList<String> getVarNamesFromFactor( ArrayList<ArrayList<String>> currFactor){
         ArrayList<String> varNamesWithout = new ArrayList<>();
-        for (int i = 0; i < currFactor.get(0).length-1; i++) {
-            int index =  currFactor.get(0)[i].indexOf("=");
-            String varName = currFactor.get(0)[i].substring(0,index);
+        for (int i = 0; i < currFactor.get(0).size()-1; i++) {
+            int index =  currFactor.get(0).get(i).indexOf("=");
+            String varName = currFactor.get(0).get(i).substring(0,index);
             varNamesWithout.add(varName);
         }
         return  varNamesWithout;
-
     }
 
-    public static void isParent(Variable parent,Variable var,Network net){
-        if(var==null){
-            return ;
-        }
+    /**
+     *
+     * @param parent
+     * @param var
+     * @param net
+     * @return
+     */
+    public static boolean isParent2(Variable parent,Variable var,Network net){
+
         if(var.getName().equals(parent.getName()))
-            p = true;
+            return true;
         for (int i = 0; i < var.getParents().size(); i++) {
-            isParent(parent,net.getVarbyName(var.getParents().get(i)),net);
+            if(isParent2(parent,net.getVarbyName(var.getParents().get(i)),net))
+                return true;
         }
+        return false;
     }
 
-
+    /**
+     *
+     * @param evi
+     * @return
+     */
     public static ArrayList<String> evidenceWithoutOutcomes(ArrayList<String> evi){
         ArrayList<String> ans = new ArrayList<>();
 
         for (String s : evi) {
             String var = s.substring(0, s.indexOf("="));
             ans.add(var);
-
         }
         return  ans;
     }
 
-    public static void computeRow(String [] row,boolean flag,ArrayList<String> evidence,Network net){
+    /**
+     *
+     * @param row
+     * @param evidence
+     * @param net
+     * @param valueReturn
+     * @return
+     */
+    public static double computeRow(String [] row,ArrayList<String> evidence,Network net,double valueReturn){
         double sum = 1;
 
         for (String s : row) {
@@ -184,18 +545,19 @@ public class Parser {
                 }
             }
         }
-        if(flag){
-            numerter+=sum;
-        }else{
-            denominator+=sum;
-        }
+        return sum;
     }
 
+    /**
+     *
+     * @param hidden
+     * @param net
+     * @param queryVarName
+     * @return
+     */
     public static String addAndMull(ArrayList<String> hidden, Network net, String queryVarName){
-
         int plus =0 ;
         int mUl = 0;
-
         int sum  = 1;
         for (int i = 0; i < hidden.size(); i++) {
             sum*= net.getVarbyName(hidden.get(i)).getOutcomeList().size();
@@ -206,21 +568,15 @@ public class Parser {
         int beforeMul =   sum*(net.getVarbyName(queryVarName).getOutcomeList().size()-1);
         plus+= beforeplus;
         mUl = (sum+beforeMul)*(net.getVars().size()-1);
-
-
         plus+= net.getVarbyName(queryVarName).getOutcomeList().size()-1;
-
-
-
-
-
         return ","+plus+","+mUl;
-
-
-
     }
 
-
+    /**
+     *
+     * @param query
+     * @return
+     */
     public static ArrayList<String> extractEvidences(String query) {
         ArrayList<String> result = new ArrayList<>();
         int pointer=0;
@@ -251,6 +607,12 @@ public class Parser {
         return result;
     }
 
+    /**
+     *
+     * @param Variables
+     * @param varName
+     * @return
+     */
     public static String[][] createCpt(List<Variable> Variables, ArrayList<String> varName) {
         List<List<String>> listsInput = new ArrayList<>();
         for (Variable v : Variables) {
@@ -273,10 +635,17 @@ public class Parser {
                 CPT[i][j] = varName.get(j)+"="+row[j];
             }
         }
-        System.out.println(Arrays.deepToString(CPT));
+
         return CPT;
     }
 
+    /**
+     *
+     * @param lists
+     * @param result
+     * @param depth
+     * @param current
+     */
     public static void generatePermutations(List<List<String>> lists, List<String> result, int depth, String current) {
         if (depth == lists.size()) {
             result.add(current.substring(0, current.length()-1));
@@ -289,6 +658,11 @@ public class Parser {
         }
     }
 
+    /**
+     *
+     * @param variables
+     * @param varName
+     */
     public static void printCpt(ArrayList<Variable> variables,ArrayList<String> varName) {
 
         String[][] cpt = createCpt(variables,varName);

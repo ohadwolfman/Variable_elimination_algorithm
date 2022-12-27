@@ -12,16 +12,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 public class Xml_reader{
-    public static void readXml(String xmlFile,Network bayesianNetwork ){
+    public static void readXml(String fileName,Network bayesianNetwork ){
         try {
-            /*String path = "C:\\Users\\ohad1\\OneDrive\\Documents\\";
-            String filename = "alarm_net.xml";
-            String xmlDirectory = path + filename;*/
-            File xmlDoc = new File(xmlFile);
+            File xmlDoc = new File("src/"+fileName);
             DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = fact.newDocumentBuilder();
             Document doc = builder.parse(xmlDoc);
-
 
 
             NodeList variableList = doc.getElementsByTagName("VARIABLE");
@@ -41,9 +37,8 @@ public class Xml_reader{
                         var.setOutcomeList(outcome);
                         j++;
                     }
-                    System.out.println(var.getCpt());
+                    //System.out.println(var.getCpt());
                     bayesianNetwork.addVar(var);
-//                    System.out.println(var);
                 }
             }
 
@@ -72,11 +67,8 @@ public class Xml_reader{
 
                     String table = eElement.getElementsByTagName("TABLE").item(0).getTextContent();
                     updateCpt(FOR,bayesianNetwork,table);
-                    System.out.println();
                     def.setTableList(table);
                     bayesianNetwork.addDef(def);
-
-//                    System.out.println(def);
                 }
             }
         }
@@ -99,7 +91,6 @@ public class Xml_reader{
         for (int i = 0; i <varIn.size() ; i++) {
             outComes.add(counter);
             counter*= net.getVarbyName(varIn.get(i)).getOutcomeList().size();
-            System.out.println(counter);
         }
         String[][] cpt = new String[counter][varIn.size()+1];
         for (int i = 0; i < counter; i++) {
@@ -115,7 +106,8 @@ public class Xml_reader{
             }
         }
         net.getVarbyName(varName).setCpt(cpt);
-        System.out.println(Arrays.deepToString(net.getVarbyName(varName).getCpt()));
+        //System.out.println("cpt of "+varName+ " updated");
+        //System.out.println(Arrays.deepToString(net.getVarbyName(varName).getCpt()));
 
     }
 
