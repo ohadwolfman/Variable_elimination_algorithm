@@ -25,21 +25,10 @@ public class Network {
         definitionList.add(def);
     }
 
-    public void deleteVar(Variable v) {
-        varibaleList.remove(v);
-    }
-
     public List<Definition> getDef(){
         return this.definitionList;
     }
     public List<Variable> getVars(){
         return this.varibaleList;
     }
-
-    public boolean isVariableExists(Variable v){
-        return (varibaleList.contains(v))? true: false;
-    }
-
-
-
 }

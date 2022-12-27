@@ -106,9 +106,9 @@ public class Xml_reader{
             }
         }
         net.getVarbyName(varName).setCpt(cpt);
-        //System.out.println("cpt of "+varName+ " updated");
-        //System.out.println(Arrays.deepToString(net.getVarbyName(varName).getCpt()));
-
+//        for (int i = 0; i < cpt.length; i++) {
+//            System.out.println(Arrays.toString(cpt[i])+",");
+//        }
     }
 
 }
